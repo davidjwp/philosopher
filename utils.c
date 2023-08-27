@@ -50,3 +50,13 @@ void	kill_all_philo(t_thread	*th)
 {
 	
 }
+
+void	destroy_forks(pthread_mutex_t *forks, pthread_mutex_t *d_lock, int num)
+{
+	int	i;
+
+	i = 0;
+	while (i < num)
+		pthread_mutex_destroy(&forks[i]);
+	pthread_mutex_destroy(d_lock);
+}

@@ -37,6 +37,7 @@ typedef struct _thread_struct{
 	pthread_t		t_id;
 	pthread_mutex_t	l_fork;
 	pthread_mutex_t	r_fork;
+	pthread_mutex_t	death_lock;
 	t_data			dt;
 }				t_thread;
 
@@ -49,5 +50,7 @@ void		eating(t_thread *th);
 int			check_death(t_thread *th);
 long long	getcurrenttime(void);
 int			ft_strlen(char *s);
+void		destroy_forks(pthread_mutex_t *forks, int num);
+
 
 #endif

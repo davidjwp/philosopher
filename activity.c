@@ -43,7 +43,12 @@ void	eating(t_thread *th)
 	write_status(th, "is eating\n");
 	th->death_time = getcurrenttime();
 	if ((th->death_time - getcurrenttime()) >= th->dt.time_td)
+	{
+		pthread_mutex_lock(&th->death_lock);
+		th->death = 1;
 		th->dead = 1;
+		pthread_mutex_unlock(&th->death_lock);
+	}
 	pthread_mutex_unlock(&th->l_fork);
 	pthread_mutex_unlock(&th->r_fork);
 }
