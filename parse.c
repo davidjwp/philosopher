@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: djacobs <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/08/27 19:05:06 by djacobs           #+#    #+#             */
+/*   Updated: 2023/08/27 19:05:07 by djacobs          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philosopher.h"
 
-int ft_atoi(char *s)
+int	ft_atoi(char *s)
 {
-	int i;
-	int num;
+	int	i;
+	int	num;
 
 	i = -1;
 	num = 0;
@@ -15,23 +27,23 @@ int ft_atoi(char *s)
 //check that the arguments are the proper numbers and not too small
 int	check_num(int argc, char **argv, t_data *data)
 {
-	data->numP = ft_atoi(argv[1]);
-	data->timeTD = ft_atoi(argv[2]);
-	data->timeTE = ft_atoi(argv[3]);
-	data->timeTS = ft_atoi(argv[4]);
-	data->numPME = 0;
+	data->nump = ft_atoi(argv[1]);
+	data->time_td = ft_atoi(argv[2]);
+	data->time_te = ft_atoi(argv[3]);
+	data->time_ts = ft_atoi(argv[4]);
+	data->num_pme = 0;
 	if (argc == 6)
-		data->numPME = ft_atoi(argv[5]);
+		data->num_pme = ft_atoi(argv[5]);
 	else
-		data->numPME = 0;
-	if (data->numP < 1 || data->timeTD < 1 || data->timeTE < 1 ||\
-	data->timeTS < 1)
+		data->num_pme = 0;
+	if (data->nump < 1 || data->time_td < 1 || data->time_te < 1 || \
+	data->time_ts < 1)
 		return (0);
 	return (1);
 }
 
 //checks that the arguments are only numbers
-int check_argv(int argc, char **argv, t_data *d)
+int	check_argv(int argc, char **argv, t_data *d)
 {
 	int	y;
 	int	i;

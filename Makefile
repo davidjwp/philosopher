@@ -2,7 +2,7 @@ CC			= gcc
 
 CFLAGS		= -g3 -Werror -Wall -Wextra
 
-NAME		= philosopher
+NAME		= philo
 
 SRCS		= init.c main.c parse.c utils.c activity.c
 
