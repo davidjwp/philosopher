@@ -28,7 +28,7 @@ void	join_threads(t_thread *threads, t_data data)
 	i = 0;
 	while (i < data.nump)
 	{
-		if (pthread_join(threads[i].t_id, NULL) == 0)
+		if (pthread_join(threads[i].t_id, NULL) == 0 && threads[i].dead)
 			write_status(&threads[i], "died\n");
 		i++;
 	}
@@ -45,7 +45,7 @@ void	*routine(void *data)
 		write_status(th, "is thinking\n");
 	if (th->nump % 2 == 0)
 		sleep_think(th);
-	while (!th->dead)
+	while (!th->death)//might need to change that
 	{
 		eating(th);
 		if (th->dt.num_pme)

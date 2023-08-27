@@ -45,3 +45,8 @@ char	*itoa(long long n)
 	str[i] = "0123456789"[n % 10];
 	return (str);
 }
+
+void	kill_all_philo(t_thread	*th)
+{
+	
+}

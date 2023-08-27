@@ -15,8 +15,10 @@
 int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 {
 	int	i;
+	int	death;
 
 	i = 0;
+	death = 0;
 	if (forks == NULL)
 		return (perror("Error mutex init"), 0);
 	while (i < data.nump)
@@ -26,6 +28,7 @@ int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 	{
 		threads[i].nump = i;
 		threads[i].dead = 0;
+		threads[i].death = death;
 		threads[i].pme = 0;
 		threads[i].dt = data;
 		threads[i].l_fork = forks[i];

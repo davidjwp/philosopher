@@ -30,6 +30,7 @@ typedef struct _global_data{
 typedef struct _thread_struct{
 	int				nump;
 	int				dead;
+	int				death;
 	long long int	start_time;
 	long long int	death_time;
 	int				pme;
