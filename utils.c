@@ -12,6 +12,13 @@
 
 #include "philosopher.h"
 
+void	err_msg(char *msg)
+{
+	write(1, "Error ", 6);
+	write(1, msg,ft_strlen(msg));
+	write(1, "\n", 1);
+}
+
 int	ft_strlen(char *s)
 {
 	int	i;
@@ -22,41 +29,35 @@ int	ft_strlen(char *s)
 	return (i);
 }
 
-char	*itoa(long long n)
+void	write_status(t_thread *th, char *status)
 {
-	char	*str;
-	int		number;
-	int		i;
+	long long int	mltime;
 
-	i = 0;
-	number = n;
-	while (number / 10)
-	{
-		number /= 10;
-		i++;
-	}
-	str = malloc((i + 2) * sizeof(char));
-	str[i + 1] = 0;
-	while (i)
-	{
-		str[i--] = "0123456789"[n % 10];
-		n = n / 10;
-	}
-	str[i] = "0123456789"[n % 10];
-	return (str);
+	mltime = getcurrenttime() - th->start_time;
+	if (mltime < __LONG_MAX__)
+		printf ("%lld Philo %i %s\n", mltime, th->nump, status);
 }
 
-void	kill_all_philo(t_thread	*th)
-{
-	
-}
+// char	*itoa(long long n)
+// {
+// 	char	*str;
+// 	int		number;
+// 	int		i;
 
-void	destroy_forks(pthread_mutex_t *forks, pthread_mutex_t *d_lock, int num)
-{
-	int	i;
-
-	i = 0;
-	while (i < num)
-		pthread_mutex_destroy(&forks[i]);
-	pthread_mutex_destroy(d_lock);
-}
+// 	i = 0;
+// 	number = n;
+// 	while (number / 10)
+// 	{
+// 		number /= 10;
+// 		i++;
+// 	}
+// 	str = malloc((i + 2) * sizeof(char));
+// 	str[i + 1] = 0;
+// 	while (i)
+// 	{
+// 		str[i--] = "0123456789"[n % 10];
+// 		n = n / 10;
+// 	}
+// 	str[i] = "0123456789"[n % 10];
+// 	return (str);
+// }

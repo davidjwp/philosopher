@@ -16,15 +16,16 @@ int main() {
     startTime = getcurrenttime();
 
     // Simulate some activity
-    usleep(20000);  // Sleep for 2 seconds
+    usleep(50000);  // Sleep for 2 seconds
 
+    printf ("Elapsed Time: %lld milliseconds\n", getcurrenttime() -startTime);
     // Record end time
-    endTime = getcurrenttime();
+    // endTime = getcurrenttime();
 
     // Calculate elapsed time in milliseconds
-    elapsedTime = endTime - startTime;
+    // elapsedTime = endTime - startTime;
 
-    printf("Elapsed Time: %lld milliseconds\n", elapsedTime);
+    // printf("Elapsed Time: %lld milliseconds\n", elapsedTime);
 
     return 0;
 }
