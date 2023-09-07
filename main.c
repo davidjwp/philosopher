@@ -60,34 +60,48 @@ void	*routine(void *arg)
 		check_death(th);
 	}
 	return ((void *)0);
-}	
+}
+
+//all shared data needs to be created in this scope or else you have problems
+/*you might need to use main strictly for higher scope declarations*/
 int	main(int argc, char **argv)
 {
 	pthread_mutex_t	death_lock;
 	pthread_mutex_t	*forks;
-	t_thread		*threads;
 	t_data			data;
-	int				i;
 
-	i = 0;
+	forks = NULL;
 	if (!check_argv(argc, argv, &data))
 		return (err_msg("bad arguments"), 0);
-	forks = malloc(sizeof(pthread_mutex_t) * data.nump);
-	threads = malloc(sizeof(t_thread) * data.nump);
-	if (threads == NULL)
-		return (err_msg("threads malloc fail"), 0);
-	mutex_init(data, threads, forks);
-	pthread_mutex_init(&death_lock, NULL);
-	while (i < data.nump)
-	{
-		threads[i].death_lock = &death_lock;
-		pthread_create(&threads[i].t_id, NULL, routine, (void *)&threads[i]);
-		i++;
-	}
-	join_threads(threads, data);
-	destroy_forks(forks, death_lock, data.nump);
-	return (free(threads), free(forks), 2);
+	if (!main_init(data, forks, death_lock))
+		return (0);
+	return (1);
 }
+
+
+// typedef struct _global_data{
+// 	int	nump;
+// 	int	time_td;
+// 	int	time_te;
+// 	int	time_ts;
+// 	int	num_pme;
+// }				t_data;
+
+// typedef struct _thread_struct{
+// 	int				fotak;           0, 0, 0, NULL, 0, 0, 0, NULL
+// 	int				nump;
+// 	int				dead;
+// 	int				*death;
+// 	long long int	start_time;
+// 	long long int	death_time;
+// 	int				pme;
+// 	pthread_mutex_t	*death_lock;
+// 	pthread_t		t_id;
+// 	pthread_mutex_t	l_fork;
+// 	pthread_mutex_t	*r_fork;
+// 	t_data			dt;
+// }				t_thread;
+
 
 //consider creating a condition to end the simulation if it's taking too long so that even without a condition you don't have to send an abort signal to stop the process 
 
