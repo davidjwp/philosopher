@@ -26,19 +26,18 @@ typedef struct _global_data{
 	int	time_ts;
 	int	num_pme;
 }				t_data;
-
 typedef struct _thread_struct{
 	int				fotak;
 	int				nump;
 	int				dead;
-	int				death;
+	int				*death;
 	long long int	start_time;
 	long long int	death_time;
 	int				pme;
+	pthread_mutex_t	*death_lock;
 	pthread_t		t_id;
 	pthread_mutex_t	l_fork;
 	pthread_mutex_t	*r_fork;
-	pthread_mutex_t	death_lock;
 	t_data			dt;
 }				t_thread;
 
@@ -51,8 +50,8 @@ int			mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks);
 
 //utils
 void		write_status(t_thread *th, char *status);
-void		sleep_think(t_thread *th);
 void		tsleep(t_thread *th);
+int		sleep_think(t_thread *th);
 int			eating(t_thread *th);
 int			check_death(t_thread *th);
 int			ft_strlen(char *s);
@@ -60,7 +59,7 @@ long long	getcurrenttime(void);
 
 void		join_threads(t_thread *threads, t_data data);
 void		*routine(void *arg);
-void		destroy_forks(pthread_mutex_t *mforks, int num);
+void		destroy_forks(pthread_mutex_t *mforks, pthread_mutex_t death_lock, int num);
 void		err_msg(char *msg);
 
 

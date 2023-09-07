@@ -16,7 +16,7 @@ int main() {
     startTime = getcurrenttime();
 
     // Simulate some activity
-    usleep(50000);  // Sleep for 2 seconds
+    usleep(500000);  // Sleep for 2 seconds
 
     printf ("Elapsed Time: %lld milliseconds\n", getcurrenttime() -startTime);
     // Record end time

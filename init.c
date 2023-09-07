@@ -19,16 +19,20 @@
 	a shared integer but only the one who died will 
 	write that it is dead.
 */
-void	mutex_death_init(t_thread *threads, t_data data)
-{
-	pthread_mutex_t	death_lock;
-	int	i;
+// void	death_init(t_thread *threads, t_data data)
+// {
+// 	pthread_mutex_t	death_lock;
+// 	int	i;
 
-	i = 0;
-	pthread_mutex_init(&death_lock, NULL);
-	while (i < data.nump)
-		threads[i++].death_lock = death_lock;
-}
+// 	i = 0;
+// 	pthread_mutex_init(&death_lock, NULL);
+// 	while (i < data.nump)
+// 	{
+// 		threads[i].death_lock = malloc(sizeof(pthread_mutex_t));
+// 		threads[i].death_lock = &death_lock;
+// 		i++;
+// 	}
+// }
 
 //the problem of the mutexes staying open despite not being initialized might be due to this
 int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
@@ -46,7 +50,7 @@ int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 		threads[i].fotak = 0;
 		threads[i].nump = i + 1;
 		threads[i].dead = 0;
-		threads[i].death = death;
+		threads[i].death = &death;
 		threads[i].pme = 0;
 		threads[i].dt = data;
 		threads[i].r_fork = NULL;
@@ -57,5 +61,5 @@ int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 			threads[i].r_fork = &forks[i + 1];
 		i++;
 	}
-	return (mutex_death_init(threads, data), 1);
+	return (/*smutex_init(threads, data),*/ 1);
 }

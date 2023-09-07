@@ -12,13 +12,14 @@
 
 #include "philosopher.h"
 
-void	destroy_forks(pthread_mutex_t *forks, int num)
+void	destroy_forks(pthread_mutex_t *forks, pthread_mutex_t death_locks, int num)
 {
 	int	i;
 
 	i = 0;
 	while (i < num)
 		pthread_mutex_destroy(&forks[i++]);
+	pthread_mutex_destroy(&death_locks);
 }
 
 void	join_threads(t_thread *threads, t_data data)
@@ -28,11 +29,11 @@ void	join_threads(t_thread *threads, t_data data)
 	i = 0;
 	while (i < data.nump)
 	{
-		if (pthread_join(threads[i].t_id, NULL) == 0 && (threads[i].dead \
-		&& threads[i].death))
-			write_status(&threads[i], "died");
-		i++;
-	}	
+		if (pthread_join(threads[i].t_id, NULL) == 0 && threads[i].dead \
+		&& threads[i].death)
+				write_status(&threads[i++], "died");
+			i++;
+	}
 }
 
 /*
@@ -49,21 +50,20 @@ void	*routine(void *arg)
 		write_status(th, "is thinking");
 	if (th->nump % 2 == 0)
 		sleep_think(th);
-	while (!th->death)
+	while (!*(th->death))
 	{
-		if (!th->death)
+		if (!*(th->death))
 			eating(th);
-		if (th->dt.num_pme && !th->death)
+		if (th->dt.num_pme && !*(th->death))
 			if (th->dt.num_pme == th->pme++)
 				return((void *)0);
 		check_death(th);
-	// 	if (!th->death)
-	// 		sleep_think(th); can only sleep if eaten except when odd or even num philo
 	}
 	return ((void *)0);
-}
+}	
 int	main(int argc, char **argv)
 {
+	pthread_mutex_t	death_lock;
 	pthread_mutex_t	*forks;
 	t_thread		*threads;
 	t_data			data;
@@ -76,20 +76,25 @@ int	main(int argc, char **argv)
 	threads = malloc(sizeof(t_thread) * data.nump);
 	if (threads == NULL)
 		return (err_msg("threads malloc fail"), 0);
-	if (!mutex_init(data, threads, forks))
-		return (free(threads), 1);
+	mutex_init(data, threads, forks);
+	pthread_mutex_init(&death_lock, NULL);
 	while (i < data.nump)
 	{
-		pthread_create(&threads[i].t_id, NULL, routine, &threads[i]);
+		threads[i].death_lock = &death_lock;
+		pthread_create(&threads[i].t_id, NULL, routine, (void *)&threads[i]);
 		i++;
 	}
 	join_threads(threads, data);
-	destroy_forks(forks, data.nump);
-	free(threads);
-	return (2);
+	destroy_forks(forks, death_lock, data.nump);
+	return (free(threads), free(forks), 2);
 }
 
-/*if the number of times each philosopher must eat is not specified then they will eat until one of them dies
+//consider creating a condition to end the simulation if it's taking too long so that even without a condition you don't have to send an abort signal to stop the process 
+
+/*
+you should only worry about failure cases when the main code works we
+
+if the number of times each philosopher must eat is not specified then they will eat until one of them dies
 
 in which case the simulation is ended, if the number is given then none of them will die and the program will simply
 end.
