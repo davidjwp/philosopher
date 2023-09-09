@@ -1,6 +1,6 @@
 CC			= gcc
 
-CFLAGS		= -g3 -Werror -Wall -Wextra
+CFLAGS		= -g3 -Werror -Wall -Wextra -g -fsanitize=thread
 
 NAME		= philo
 
@@ -30,3 +30,5 @@ fclean: clean
 re: fclean all
 
 .PHONY: fclean clean all
+
+#PUT THE FUCKING  HEADER !!!!

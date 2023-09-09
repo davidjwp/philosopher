@@ -30,14 +30,14 @@ typedef struct _global_data{
 typedef struct _thread_struct{
 	int				fotak;
 	int				nump;
-	int				dead;
 	int				*death;
+	int				exit;
 	long long int	start_time;
 	long long int	death_time;
 	int				pme;
 	pthread_mutex_t	*death_lock;
 	pthread_t		t_id;
-	pthread_mutex_t	l_fork;
+	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	*r_fork;
 	t_data			dt;
 }				t_thread;

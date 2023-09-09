@@ -18,7 +18,7 @@ void	clean_mutex(pthread_mutex_t *mutex, int num)
 
 	i = 0;
 	while (i < num)
-		pthread_mutex_destroy(&mutex[i++]);//might miss one idk
+		pthread_mutex_destroy(&mutex[i++]);
 }
 
 //the problem of the mutexes staying open despite not being initialized might be due to this
@@ -33,13 +33,13 @@ int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 	i = 0;
 	while (i < data.nump)
 	{
+		threads[i].exit = 0;
 		threads[i].fotak = 0;
 		threads[i].nump = i + 1;
-		threads[i].dead = 0;
 		threads[i].pme = 0;
 		threads[i].dt = data;
 		threads[i].r_fork = NULL;
-		threads[i].l_fork = forks[i];
+		threads[i].l_fork = &forks[i];
 		if (i == (data.nump - 1) && data.nump > 1)
 			threads[i].r_fork = &forks[0];
 		else if (data.nump > 1)
@@ -60,7 +60,7 @@ int	main_init(t_data dt, pthread_mutex_t *forks, pthread_mutex_t dl)
 	death = 0;
 	forks = malloc(sizeof(pthread_mutex_t) * dt.nump);
 	if (forks == NULL)
-		return (err_msg("fk malloc fail"), 0);
+		return (err_msg("forks malloc fail"), 0);
 	threads = malloc(sizeof(t_thread) * dt.nump);
 	if (threads == NULL)
 		return (err_msg("threads malloc fail"), free(forks), 1);

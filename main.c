@@ -28,12 +28,7 @@ void	join_threads(t_thread *threads, t_data data)
 
 	i = 0;
 	while (i < data.nump)
-	{
-		if (pthread_join(threads[i].t_id, NULL) == 0 && threads[i].dead \
-		&& threads[i].death)
-				write_status(&threads[i++], "died");
-			i++;
-	}
+		pthread_join(threads[i++].t_id, NULL);
 }
 
 /*
@@ -49,17 +44,19 @@ void	*routine(void *arg)
 	if (th->dt.nump == 3 && th->nump == 3)
 		write_status(th, "is thinking");
 	if (th->nump % 2 == 0)
-		sleep_think(th);
-	while (!*(th->death))
+		if (!sleep_think(th))
+			return (NULL);
+	while (!*(th->death) || th->exit)
 	{
 		if (!*(th->death))
 			eating(th);
 		if (th->dt.num_pme && !*(th->death))
-			if (th->dt.num_pme == th->pme++)
-				return((void *)0);
-		check_death(th);
+			if (th->pme == th->dt.num_pme)
+				return(NULL);
+		if (!check_death(th))
+			return (NULL);
 	}
-	return ((void *)0);
+	return (NULL);
 }
 
 //all shared data needs to be created in this scope or else you have problems
@@ -78,30 +75,7 @@ int	main(int argc, char **argv)
 	return (1);
 }
 
-
-// typedef struct _global_data{
-// 	int	nump;
-// 	int	time_td;
-// 	int	time_te;
-// 	int	time_ts;
-// 	int	num_pme;
-// }				t_data;
-
-// typedef struct _thread_struct{
-// 	int				fotak;           0, 0, 0, NULL, 0, 0, 0, NULL
-// 	int				nump;
-// 	int				dead;
-// 	int				*death;
-// 	long long int	start_time;
-// 	long long int	death_time;
-// 	int				pme;
-// 	pthread_mutex_t	*death_lock;
-// 	pthread_t		t_id;
-// 	pthread_mutex_t	l_fork;
-// 	pthread_mutex_t	*r_fork;
-// 	t_data			dt;
-// }				t_thread;
-
+//could be a potential deadlock whith the last philosopher in regard to the right fork, i don't know why this happens
 
 //consider creating a condition to end the simulation if it's taking too long so that even without a condition you don't have to send an abort signal to stop the process 
 
