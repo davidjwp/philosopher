@@ -28,9 +28,9 @@ void	*accessing(t_thread *th)
 		if (pthread_mutex_lock(th->r_fork) == 0)
 		{
 			printf ("thread %d has picked up the right fork\n", th->t_num);
+			printf ("thread %d is accessing the shared data\n", th->t_num);
 			sharedData++;
 			usleep(1000);
-			printf ("thread %d is accessing the shared data\n", th->t_num);
 			printf("thread %d is dropping both forks\n", th->t_num);
 			pthread_mutex_unlock(&th->l_fork);
 			pthread_mutex_unlock(th->r_fork);
