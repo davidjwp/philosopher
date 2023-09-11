@@ -35,6 +35,7 @@ typedef struct _thread_struct{
 	long long int	start_time;
 	long long int	death_time;
 	int				pme;
+	pthread_mutex_t	*fork_lock;
 	pthread_mutex_t	*death_lock;
 	pthread_t		t_id;
 	pthread_mutex_t	*l_fork;
@@ -47,7 +48,7 @@ int			check_argv(int argc, char **argv, t_data *d);
 
 //init
 int			main_init(t_data dt, pthread_mutex_t *forks, pthread_mutex_t dl);
-int			mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks);
+int			mutex_init(t_data data, t_thread *thread, pthread_mutex_t *forks);
 
 //utils
 void		write_status(t_thread *th, char *status);

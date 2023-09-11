@@ -41,15 +41,16 @@ void	*routine(void *arg)
 	th = (t_thread *)arg;
 	th->start_time = getcurrenttime();
 	th->death_time = th->start_time;
-	if (th->dt.nump == 3 && th->nump == 3)
-		write_status(th, "is thinking");
+	// if (th->dt.nump == 3 && th->nump == 3)
+	// 	write_status(th, "is thinking");
 	if (th->nump % 2 == 0)
 		if (!sleep_think(th))
 			return (NULL);
 	while (!*(th->death) || th->exit)
 	{
 		if (!*(th->death))
-			eating(th);
+			if (!eating(th))
+				return (NULL);
 		if (th->dt.num_pme && !*(th->death))
 			if (th->pme == th->dt.num_pme)
 				return(NULL);
@@ -74,6 +75,9 @@ int	main(int argc, char **argv)
 		return (0);
 	return (1);
 }
+
+/*in some cases when death is declared they don't all die at once, also when they die from too much sleep very weird, there is no data race and don't worry about the lock hierarchy*/
+
 
 //could be a potential deadlock whith the last philosopher in regard to the right fork, i don't know why this happens
 

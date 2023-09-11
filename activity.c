@@ -36,35 +36,37 @@ int	check_death(t_thread *th)
 	}
 	else if (th->dt.num_pme && th->pme == th->dt.num_pme)
 		return (pthread_mutex_unlock(th->death_lock), th->exit = 1, 0);
+	else if (*(th->death))
+		return (pthread_mutex_unlock(th->death_lock), 0);
 	return (pthread_mutex_unlock(th->death_lock), 1);
 }
 
 int	eating(t_thread *th)
 {
-	if (!pthread_mutex_lock(th->l_fork) && !th->fotak)
-	{
-		th->fotak++;
-		write_status(th, "has taken a fork");
-	}
 	if (th->r_fork == NULL)
-		return (pthread_mutex_unlock(th->l_fork), 0);
-	if (!pthread_mutex_lock(th->r_fork) && th->fotak)
 	{
-		if (!check_death(th))
-			return (pthread_mutex_unlock(th->l_fork), \
-			pthread_mutex_unlock(th->r_fork), 0);
-		write_status(th, "has taken a fork");
-		write_status(th, "is eating");
-		usleep(th->dt.time_te * 1000);
-		th->death_time = getcurrenttime();
-		pthread_mutex_unlock(th->r_fork);
-		pthread_mutex_unlock(th->l_fork);
-		th->pme++;
-		if (!check_death(th))
-			return (0);
-		return(sleep_think(th), th->fotak--, 0);
+		if (!th->fotak++)
+			write_status(th, "has taken a fork");
+		return (1);
 	}
-	return (0);
+	pthread_mutex_lock(th->l_fork);
+	write_status(th, "has taken a fork");
+	if (!check_death(th))
+		return (pthread_mutex_unlock(th->l_fork), 0);
+	pthread_mutex_lock(th->r_fork);
+	write_status(th, "has taken a fork");
+	if (!check_death(th))
+		return (pthread_mutex_unlock(th->l_fork), \
+		pthread_mutex_unlock(th->r_fork), 0);
+	write_status(th, "is eating");
+	usleep(th->dt.time_te * 1000);
+	th->death_time = getcurrenttime();
+	pthread_mutex_unlock(th->l_fork);
+	pthread_mutex_unlock(th->r_fork);
+	th->pme++;
+	if (!check_death(th))
+		return (0);
+	return (sleep_think(th), th->fotak--, 1);
 }
 
 int	sleep_think(t_thread *th)
@@ -76,5 +78,7 @@ int	sleep_think(t_thread *th)
 	if (!check_death(th))
 		return (0);
 	write_status(th, "is thinking");
+	if (!check_death(th))
+		return (0);
 	return (1);
 }

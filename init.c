@@ -12,6 +12,10 @@
 
 #include "philosopher.h"
 
+/*
+* this function is only just in case of failure to initialize the forks mutex
+* it'll destroy all the previous mutexes that were previously initialized
+*/
 void	clean_mutex(pthread_mutex_t *mutex, int num)
 {
 	int	i;
@@ -21,7 +25,10 @@ void	clean_mutex(pthread_mutex_t *mutex, int num)
 		pthread_mutex_destroy(&mutex[i++]);
 }
 
-//the problem of the mutexes staying open despite not being initialized might be due to this
+/*
+* here i initialize all the data and forks with shared data and mutexes 
+* being in main_init
+*/
 int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 {
 	int				i;
@@ -49,7 +56,12 @@ int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 	return (1);
 }
 
-
+/*
+* all the shared data starts in this scope or the previous one
+*
+* the forks and threads are allocated and initialized, then the threads are
+* created, then joined and threads and forks freed
+*/
 int	main_init(t_data dt, pthread_mutex_t *forks, pthread_mutex_t dl)
 {
 	t_thread		*threads;

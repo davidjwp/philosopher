@@ -1,5 +1,0 @@
-break mutex_init
-break init_forks
-break routine
-break eating
-break mutex_death_init

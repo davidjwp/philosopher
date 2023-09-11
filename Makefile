@@ -1,6 +1,18 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: djacobs <marvin@42.fr>                     +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2023/09/11 17:16:11 by djacobs           #+#    #+#              #
+#    Updated: 2023/09/11 17:16:13 by djacobs          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 CC			= gcc
 
-CFLAGS		= -g3 -Werror -Wall -Wextra -g -fsanitize=thread
+CFLAGS		= -g3 -Werror -Wall -Wextra #-g -fsanitize=thread
 
 NAME		= philo
 
@@ -30,5 +42,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: fclean clean all
-
-#PUT THE FUCKING  HEADER !!!!

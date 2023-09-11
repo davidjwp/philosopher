@@ -15,7 +15,7 @@
 void	err_msg(char *msg)
 {
 	write(1, "Error ", 6);
-	write(1, msg,ft_strlen(msg));
+	write(1, msg, ft_strlen(msg));
 	write(1, "\n", 1);
 }
 
@@ -35,29 +35,5 @@ void	write_status(t_thread *th, char *status)
 
 	mltime = getcurrenttime() - th->start_time;
 	if (mltime < __LONG_MAX__)
-		printf ("%lld Philo %i %s\n", mltime, th->nump, status);
+		printf (/*"%lld Philo*/"%lld %i %s\n", mltime, th->nump, status);
 }
-
-// char	*itoa(long long n)
-// {
-// 	char	*str;
-// 	int		number;
-// 	int		i;
-
-// 	i = 0;
-// 	number = n;
-// 	while (number / 10)
-// 	{
-// 		number /= 10;
-// 		i++;
-// 	}
-// 	str = malloc((i + 2) * sizeof(char));
-// 	str[i + 1] = 0;
-// 	while (i)
-// 	{
-// 		str[i--] = "0123456789"[n % 10];
-// 		n = n / 10;
-// 	}
-// 	str[i] = "0123456789"[n % 10];
-// 	return (str);
-// }
