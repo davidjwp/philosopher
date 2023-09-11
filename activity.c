@@ -12,15 +12,7 @@
 
 #include "philosopher.h"
 
-long long	getcurrenttime(void)
-{
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	return ((long long)tv.tv_sec * 1000 + (long long)tv.tv_usec / 1000);
-}
-
-//this checks wether or not the philosophers are dead
+//this checks wether or not the philosophers are dead or have eaten enough
 int	check_death(t_thread *th)
 {
 	pthread_mutex_lock(th->death_lock);
@@ -41,6 +33,21 @@ int	check_death(t_thread *th)
 	return (pthread_mutex_unlock(th->death_lock), 1);
 }
 
+void	picking_forks(t_thread *th)
+{
+	pthread_mutex_lock(th->l_fork);
+	write_status(th, "has taken a fork");
+	pthread_mutex_lock(th->r_fork);
+	write_status(th, "has taken a fork");
+}
+
+void	dropping_forks(t_thread *th)
+{
+	pthread_mutex_unlock(th->l_fork);
+	pthread_mutex_unlock(th->r_fork);
+	th->pme++;
+}
+
 int	eating(t_thread *th)
 {
 	if (th->r_fork == NULL)
@@ -49,21 +56,11 @@ int	eating(t_thread *th)
 			write_status(th, "has taken a fork");
 		return (1);
 	}
-	pthread_mutex_lock(th->l_fork);
-	write_status(th, "has taken a fork");
-	if (!check_death(th))
-		return (pthread_mutex_unlock(th->l_fork), 0);
-	pthread_mutex_lock(th->r_fork);
-	write_status(th, "has taken a fork");
-	if (!check_death(th))
-		return (pthread_mutex_unlock(th->l_fork), \
-		pthread_mutex_unlock(th->r_fork), 0);
+	picking_forks(th);
 	write_status(th, "is eating");
 	usleep(th->dt.time_te * 1000);
 	th->death_time = getcurrenttime();
-	pthread_mutex_unlock(th->l_fork);
-	pthread_mutex_unlock(th->r_fork);
-	th->pme++;
+	dropping_forks(th);
 	if (!check_death(th))
 		return (0);
 	return (sleep_think(th), th->fotak--, 1);

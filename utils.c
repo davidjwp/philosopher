@@ -37,3 +37,11 @@ void	write_status(t_thread *th, char *status)
 	if (mltime < __LONG_MAX__)
 		printf (/*"%lld Philo*/"%lld %i %s\n", mltime, th->nump, status);
 }
+
+long long	getcurrenttime(void)
+{
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return ((long long)tv.tv_sec * 1000 + (long long)tv.tv_usec / 1000);
+}

@@ -47,8 +47,8 @@ typedef struct _thread_struct{
 int			check_argv(int argc, char **argv, t_data *d);
 
 //init
-int			main_init(t_data dt, pthread_mutex_t *forks, pthread_mutex_t dl);
-int			mutex_init(t_data data, t_thread *thread, pthread_mutex_t *forks);
+int			init(t_data q, pthread_mutex_t *f, pthread_mutex_t d, t_thread *t);
+int			mutex_init(t_data data, t_thread *th, pthread_mutex_t *f);
 
 //utils
 void		write_status(t_thread *th, char *status);

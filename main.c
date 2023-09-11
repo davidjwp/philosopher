@@ -46,7 +46,7 @@ void	*routine(void *arg)
 	if (th->nump % 2 == 0)
 		if (!sleep_think(th))
 			return (NULL);
-	while (!*(th->death) || th->exit)
+	while (!*(th->death) && !th->exit)
 	{
 		if (!*(th->death))
 			if (!eating(th))
@@ -66,12 +66,19 @@ int	main(int argc, char **argv)
 {
 	pthread_mutex_t	death_lock;
 	pthread_mutex_t	*forks;
+	t_thread		*threads;
 	t_data			data;
 
 	forks = NULL;
 	if (!check_argv(argc, argv, &data))
 		return (err_msg("bad arguments"), 0);
-	if (!main_init(data, forks, death_lock))
+	forks = malloc(sizeof(pthread_mutex_t) * data.nump);
+	if (forks == NULL)
+		return (err_msg("forks malloc fail"), 0);	
+	threads = malloc(sizeof(t_thread) * data.nump);
+	if (threads == NULL)
+		return (err_msg("threads malloc fail"), free(forks), 1);
+	if (!init(data, forks, death_lock, threads))
 		return (0);
 	return (1);
 }
