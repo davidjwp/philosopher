@@ -44,11 +44,10 @@ void	*routine(void *arg)
 	if (th->nump % 2 == 0)
 		if (!sleep_think(th))
 			return (NULL);
-	while (!*(th->death) && !th->exit)
+	while (!th->exit)
 	{
-		if (!*(th->death))
-			if (!eating(th))
-				return (NULL);
+		if (!eating(th))
+			return (NULL);
 		if (th->dt.num_pme && !*(th->death))
 			if (th->pme == th->dt.num_pme)
 				return (NULL);

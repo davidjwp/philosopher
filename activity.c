@@ -50,6 +50,8 @@ void	dropping_forks(t_thread *th)
 
 int	eating(t_thread *th)
 {
+	if (!check_death(th))
+		return (0);
 	if (th->r_fork == NULL)
 	{
 		if (!th->fotak++)
@@ -63,7 +65,7 @@ int	eating(t_thread *th)
 	dropping_forks(th);
 	if (!check_death(th))
 		return (0);
-	return (sleep_think(th), th->fotak--, 1);
+	return (th->fotak--, sleep_think(th));
 }
 
 int	sleep_think(t_thread *th)
