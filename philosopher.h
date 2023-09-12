@@ -53,18 +53,17 @@ int			mutex_init(t_data data, t_thread *th, pthread_mutex_t *f);
 
 //utils
 void		write_status(t_thread *th, char *status);
-void		tsleep(t_thread *th);
+int			ft_strlen(char *s);
+void		clean_forks(t_thread *threads, int i);
+void		destroy_forks(pthread_mutex_t *mforks, pthread_mutex_t dl, int num);
+void		err_msg(char *msg);
+
+//thread function
 int			sleep_think(t_thread *th);
 int			eating(t_thread *th);
 int			check_death(t_thread *th);
-int			ft_strlen(char *s);
 long long	getcurrenttime(void);
-void		clean_forks(t_thread *threads, int i);
-
-
 void		join_threads(t_thread *threads, t_data data);
 void		*routine(void *arg);
-void		destroy_forks(pthread_mutex_t *mforks, pthread_mutex_t dl, int num);
-void		err_msg(char *msg);
 
 #endif
