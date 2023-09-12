@@ -19,6 +19,11 @@
 # include <stdio.h>
 # include <sys/time.h>
 
+// typedef struct	_forks{
+// 	pthread_mutex_t	*fork;
+// 	t_forks			*next;
+// }				t_forks;
+
 typedef struct _global_data{
 	int	nump;
 	int	time_td;
@@ -35,6 +40,7 @@ typedef struct _thread_struct{
 	long long int	start_time;
 	long long int	death_time;
 	int				pme;
+	pthread_mutex_t	*print_lock;
 	pthread_mutex_t	*fork_lock;
 	pthread_mutex_t	*death_lock;
 	pthread_t		t_id;

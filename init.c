@@ -91,16 +91,19 @@ int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 */
 int init(t_data dt, pthread_mutex_t *f, pthread_mutex_t dl, t_thread *th)
 {
+	pthread_mutex_t	print_lock;
 	int				death;
 	int				i;
 
 	i = 0;
 	death = 0;
+	pthread_mutex_init(&print_lock, NULL);
 	if (!mutex_init(dt, th, f))
 		return (0);
 	pthread_mutex_init(&dl, NULL);
 	while (i < dt.nump)
 	{
+		th[i].print_lock = &print_lock;
 		th[i].death = &death;
 		th[i].death_lock = &dl;
 		pthread_create(&th[i].t_id, NULL, routine, (void *)&th[i]);

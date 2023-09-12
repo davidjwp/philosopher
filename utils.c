@@ -34,8 +34,10 @@ void	write_status(t_thread *th, char *status)
 	long long int	mltime;
 
 	mltime = getcurrenttime() - th->start_time;
+	pthread_mutex_lock(th->print_lock);
 	if (mltime < __LONG_MAX__)
 		printf (/*"%lld Philo*/"%lld %i %s\n", mltime, th->nump, status);
+	pthread_mutex_unlock(th->print_lock);
 }
 
 long long	getcurrenttime(void)

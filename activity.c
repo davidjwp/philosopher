@@ -70,7 +70,9 @@ int	sleep_think(t_thread *th)
 {
 	if (!check_death(th))
 		return (0);
+	pthread_mutex_lock(th->death_lock);
 	write_status(th, "is sleeping");
+	pthread_mutex_unlock(th->death_lock);
 	usleep(th->dt.time_ts * 1000);
 	if (!check_death(th))
 		return (0);
