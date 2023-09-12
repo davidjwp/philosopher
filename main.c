@@ -12,15 +12,15 @@
 
 #include "philosopher.h"
 
-void	destroy_forks(pthread_mutex_t *forks, pthread_mutex_t death_locks, int num)
+void	destroy_forks(pthread_mutex_t *frks, pthread_mutex_t deathlocks, int n)
 {
 	int	i;
 
 	i = 0;
-	while (i < num)
-		pthread_mutex_destroy(&forks[i++]);
 	
-	pthread_mutex_destroy(&death_locks);
+	while (i < n)
+		pthread_mutex_destroy(&frks[i++]);
+	pthread_mutex_destroy(&deathlocks);
 }
 
 void	join_threads(t_thread *threads, t_data data)
@@ -29,7 +29,11 @@ void	join_threads(t_thread *threads, t_data data)
 
 	i = 0;
 	while (i < data.nump)
-		pthread_join(threads[i++].t_id, NULL);
+	{
+		pthread_join(threads[i].t_id, NULL);
+		i++;
+	}
+	// clean_forks(threads, data.nump);
 }
 
 /*
