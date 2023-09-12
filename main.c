@@ -19,6 +19,7 @@ void	destroy_forks(pthread_mutex_t *forks, pthread_mutex_t death_locks, int num)
 	i = 0;
 	while (i < num)
 		pthread_mutex_destroy(&forks[i++]);
+	
 	pthread_mutex_destroy(&death_locks);
 }
 

@@ -43,8 +43,8 @@ void	picking_forks(t_thread *th)
 
 void	dropping_forks(t_thread *th)
 {
-	pthread_mutex_unlock(th->l_fork);
 	pthread_mutex_unlock(th->r_fork);
+	pthread_mutex_unlock(th->l_fork);
 	th->pme++;
 }
 
