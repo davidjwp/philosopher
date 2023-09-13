@@ -28,6 +28,7 @@ typedef struct _global_data{
 }				t_data;
 
 typedef struct _thread_struct{
+	int				change;
 	int				fotak;
 	int				nump;
 	int				*death;

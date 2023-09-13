@@ -64,12 +64,18 @@ void	monitor(t_data data, t_thread *th, int i, int pme)
 	while (i < data.nump)
 	{
 		pthread_mutex_lock(th[i].death_lock);
-		if (th[i].nump % 3)
-			printf ("thread %d death time is %lld\n", th[i].nump, getcurrenttime() - th[i].death_time);
+		if (th[i].change == 1)
+		{
+			printf ("thread %d has changed death time %lld\n", th[i].nump, getcurrenttime() - th[i].death_time);
+			th[i].change = 0;
+		}
 		if (!*th[i].death && (data.num_pme && pme != data.num_pme))
 		{
 			if ((getcurrenttime() - th[i].death_time) >= data.time_td)
+			{
 				write_death(th, "died");
+				printf ("thread %d is dead with timestamp of %lld\n", th[i].nump, getcurrenttime() - th[i].death_time);
+			}
 			if ((getcurrenttime() - th[i].death_time) >= data.time_td)
 				*th[i].death = 1;
 			if (data.num_pme && th[i].pme == data.num_pme && !th[i].exit)

@@ -117,6 +117,7 @@ int	eating(t_thread *th)
 	usleep(th->dt.time_te * 1000);
 	pthread_mutex_lock(th->death_lock);
 	th->death_time = getcurrenttime();
+	th->change = 1;
 	pthread_mutex_unlock(th->death_lock);
 	dropping_forks(th);
 	return (th->fotak--, sleep_think(th));

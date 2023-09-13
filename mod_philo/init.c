@@ -76,6 +76,7 @@ int	init(t_data dt, pthread_mutex_t *f, pthread_mutex_t dl, t_thread *th)
 	pthread_mutex_init(&dl, NULL);
 	while (i < dt.nump)
 	{
+		th[i].change = 0;
 		th[i].print_lock = &print_lock;
 		th[i].death = &death;
 		th[i].death_lock = &dl;
