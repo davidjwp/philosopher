@@ -29,7 +29,7 @@ int	ft_strlen(char *s)
 	return (i);
 }
 
-void	write_status(t_thread *th, char *status)
+void	write_death(t_thread *th, char *status)
 {
 	long long int	mltime;
 
@@ -38,6 +38,20 @@ void	write_status(t_thread *th, char *status)
 	if (mltime < __LONG_MAX__)
 		printf ("%lld %i %s\n", mltime, th->nump, status);
 	pthread_mutex_unlock(th->print_lock);
+}
+
+int	write_status(t_thread *th, char *status)
+{
+	long long int	mltime;
+
+	if (!other_death(th))
+		return (0);
+	mltime = getcurrenttime() - th->start_time;
+	pthread_mutex_lock(th->print_lock);
+	if (mltime < __LONG_MAX__)
+		printf ("%lld %i %s\n", mltime, th->nump, status);
+	pthread_mutex_unlock(th->print_lock);
+	return (1);
 }
 
 long long	getcurrenttime(void)

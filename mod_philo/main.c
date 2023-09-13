@@ -40,37 +40,42 @@ void	*routine(void *arg)
 
 	th = (t_thread *)arg;
 	th->start_time = getcurrenttime();
+	pthread_mutex_lock(th->death_lock);
 	th->death_time = th->start_time;
-	if (th->nump % 2 == 0 || th->dt.nump == 1)
+	pthread_mutex_unlock(th->death_lock);
+	if (th->nump == 3)
+		write_status(th, "is thinking");
+	if (th->nump % 2 == 0)
 		if (!sleep_think(th))
 			return (NULL);
 	while (!th->exit)
 	{
 		if (!eating(th))
 			return (NULL);
-		if (th->dt.num_pme && !*(th->death))
-			if (th->pme == th->dt.num_pme)
-				return (NULL);
-		if (!check_death(th))
-			return (NULL);
+		// if (th->dt.num_pme && !*(th->death))
+		// 	if (th->pme == th->dt.num_pme)
+		// 		return (NULL);
 	}
 	return (NULL);
 }
 
-void	monitor(t_data data, t_thread *th)
+void	monitor(t_data data, t_thread *th, int i, int pme)
 {
-	int	i;
-
-	i = 0;
 	while (i < data.nump)
 	{
 		pthread_mutex_lock(th[i].death_lock);
-		if (!*th[i].death)
+		if (th[i].nump % 3)
+			printf ("thread %d death time is %lld\n", th[i].nump, getcurrenttime() - th[i].death_time);
+		if (!*th[i].death && (data.num_pme && pme != data.num_pme))
 		{
 			if ((getcurrenttime() - th[i].death_time) >= data.time_td)
-			{
-				write_status(th, "died");
+				write_death(th, "died");
+			if ((getcurrenttime() - th[i].death_time) >= data.time_td)
 				*th[i].death = 1;
+			if (data.num_pme && th[i].pme == data.num_pme && !th[i].exit)
+			{
+				th[i].exit = 1;
+				pme++;
 			}
 		}
 		else
@@ -97,7 +102,7 @@ int	main(int argc, char **argv)
 	t_data			data;
 
 	forks = NULL;
-	if (!check_argv(argc, argv, &data))`
+	if (!check_argv(argc, argv, &data))
 		return (err_msg("bad arguments"), 0);
 	forks = malloc(sizeof(pthread_mutex_t) * data.nump);
 	if (forks == NULL)

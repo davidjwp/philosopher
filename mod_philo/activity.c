@@ -36,26 +36,31 @@
 int	other_death(t_thread *th)
 {
 	pthread_mutex_lock(th->death_lock);
-	if (*th->death)
+	// printf ("\nphilo %d is checking death state of %d and exit state of %d\n", th->nump, *th->death, th->exit);
+	if (*th->death || th->exit)
 		return (pthread_mutex_unlock(th->death_lock), 0);
 	pthread_mutex_unlock(th->death_lock);
 	return (1);
 }
 
 
-void	ft_sleep(t_thread *th, int time_to_sleep)
+int	ft_sleep(t_thread *th, int time_to_sleep)
 {
-	int	i;
-
-	i = 0;
-	while (i < time_to_sleep)
+	time_to_sleep *= 10;
+	while (time_to_sleep--)
 	{
 		if (!other_death(th))
 			return (0);
-		usleep(1);
-		i++;
+		usleep(10);
 	}
+	return (1);
 }
+
+// void	myusleep(int time_to_sleep)
+// {
+// 	while (time_to_sleep--)
+// 		usleep(1);
+// }
 
 void	picking_forks(t_thread *th)
 {
@@ -81,34 +86,39 @@ void	dropping_forks(t_thread *th)
 	{
 		pthread_mutex_unlock(th->r_fork);
 		pthread_mutex_unlock(th->l_fork);
+		pthread_mutex_lock(th->death_lock);
 		th->pme++;
+		pthread_mutex_unlock(th->death_lock);
 	}
 	else
 	{
 		pthread_mutex_unlock(th->l_fork);
-		pthread_mutex_unlock(th->r_fork);
+ 		pthread_mutex_unlock(th->r_fork);
+		pthread_mutex_lock(th->death_lock);
 		th->pme++;
+		pthread_mutex_unlock(th->death_lock);
 	}
 }
 
 
 int	eating(t_thread *th)
 {
-	if (!check_death(th))
-		return (0);
 	if (th->r_fork == NULL)
 	{
 		if (!th->fotak++)
 			write_status(th, "has taken a fork");
+		if (!other_death(th))
+			return (0);		
 		return (1);
 	}
 	picking_forks(th);
-	write_status(th, "is eating");
+	if (!write_status(th, "is eating"))
+		return (dropping_forks(th), 0);
 	usleep(th->dt.time_te * 1000);
+	pthread_mutex_lock(th->death_lock);
 	th->death_time = getcurrenttime();
+	pthread_mutex_unlock(th->death_lock);
 	dropping_forks(th);
-	if (!check_death(th))
-		return (0);
 	return (th->fotak--, sleep_think(th));
 }
 
@@ -136,8 +146,10 @@ int	eating(t_thread *th)
 
 int	sleep_think(t_thread *th)
 {
-	write_status(th, "is sleeping");
-	ft_sleep(th, th->dt.time_ts * 1000);
+	if (!write_status(th, "is sleeping"))
+		return (0);
+	if (!ft_sleep(th, th->dt.time_ts))
+		return (0);
 	write_status(th, "is thinking");
 	return (1);
 }

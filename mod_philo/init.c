@@ -80,10 +80,10 @@ int	init(t_data dt, pthread_mutex_t *f, pthread_mutex_t dl, t_thread *th)
 		th[i].death = &death;
 		th[i].death_lock = &dl;
 		pthread_create(&th[i].t_id, NULL, routine, (void *)&th[i]);
-		// usleep(10);
+		usleep(10);
 		i++;
 	}
-	monitor(dt, th);
+	monitor(dt, th, 0, 0);
 	join_threads(th, dt);
 	return (destroy_forks(f, dl, dt.nump), free(th), free(f), 2);
 }
