@@ -28,7 +28,6 @@ typedef struct _global_data{
 }				t_data;
 
 typedef struct _thread_struct{
-	int				change;
 	int				fotak;
 	int				nump;
 	int				*death;
@@ -36,6 +35,7 @@ typedef struct _thread_struct{
 	long long int	start_time;
 	long long int	death_time;
 	int				pme;
+	int				eating;
 	pthread_mutex_t	*print_lock;
 	pthread_mutex_t	*fork_lock;
 	pthread_mutex_t	*death_lock;

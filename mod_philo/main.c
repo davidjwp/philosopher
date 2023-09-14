@@ -61,22 +61,21 @@ void	*routine(void *arg)
 
 void	monitor(t_data data, t_thread *th, int i, int pme)
 {
+	// long long int start_timer;
 	while (i < data.nump)
 	{
 		pthread_mutex_lock(th[i].death_lock);
-		if (th[i].change == 1)
+		// start_timer = getcurrenttime() - th[0].death_time;
+		// if (th[i].nump == 1 && ((getcurrenttime() - th[0].death_time) == start_timer + 1 || getcurrenttime() - th[0].death_time < start_timer))
+		// {
+		// 	printf ("thread 1 death time is %lld in mls\n", getcurrenttime() - th[i].death_time);
+		// 	start_timer = getcurrenttime() - th[0].death_time;
+		// }
+		if (!*th[i].death && (data.num_pme && pme != data.nump))
 		{
-			printf ("thread %d has changed death time %lld\n", th[i].nump, getcurrenttime() - th[i].death_time);
-			th[i].change = 0;
-		}
-		if (!*th[i].death && (data.num_pme && pme != data.num_pme))
-		{
-			if ((getcurrenttime() - th[i].death_time) >= data.time_td)
-			{
+			if ((getcurrenttime() - th[i].death_time) >= data.time_td && !th[i].eating)
 				write_death(th, "died");
-				printf ("thread %d is dead with timestamp of %lld\n", th[i].nump, getcurrenttime() - th[i].death_time);
-			}
-			if ((getcurrenttime() - th[i].death_time) >= data.time_td)
+			if ((getcurrenttime() - th[i].death_time) >= data.time_td && !th[i].eating)
 				*th[i].death = 1;
 			if (data.num_pme && th[i].pme == data.num_pme && !th[i].exit)
 			{
@@ -123,6 +122,9 @@ int	main(int argc, char **argv)
 
 
 /*
+	the problem is from the way it exits when it's eaten it's fill, instead of exiting it lingers after eating, sleeps and dies because it never wakes  up
+
+
 	you should try and change the way that death is reported, if it doesn't work the original way is working anyways
 	it's just that it might slow down the code a little bit, secure everything though and it should be fine 
 */

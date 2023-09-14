@@ -114,12 +114,15 @@ int	eating(t_thread *th)
 	picking_forks(th);
 	if (!write_status(th, "is eating"))
 		return (dropping_forks(th), 0);
-	usleep(th->dt.time_te * 1000);
 	pthread_mutex_lock(th->death_lock);
+	th->eating = 1;
+	usleep(th->dt.time_te * 1000);
 	th->death_time = getcurrenttime();
-	th->change = 1;
+	th->eating = 0;
 	pthread_mutex_unlock(th->death_lock);
 	dropping_forks(th);
+	if (th->dt.num_pme && th->pme == th->dt.num_pme)
+		return (th->fotak--, 0);
 	return (th->fotak--, sleep_think(th));
 }
 

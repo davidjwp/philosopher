@@ -42,6 +42,7 @@ int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 		threads[i].pme = 0;
 		threads[i].dt = data;
 		threads[i].r_fork = NULL;
+		threads[i].eating = 0;
 		if (pthread_mutex_init(&forks[i++], NULL) != 0)
 			return (clean_mutex(forks, i), err_msg("forks mutex init"), 0);
 	}
@@ -76,7 +77,6 @@ int	init(t_data dt, pthread_mutex_t *f, pthread_mutex_t dl, t_thread *th)
 	pthread_mutex_init(&dl, NULL);
 	while (i < dt.nump)
 	{
-		th[i].change = 0;
 		th[i].print_lock = &print_lock;
 		th[i].death = &death;
 		th[i].death_lock = &dl;
