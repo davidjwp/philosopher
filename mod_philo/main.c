@@ -40,10 +40,8 @@ void	*routine(void *arg)
 
 	th = (t_thread *)arg;
 	th->start_time = getcurrenttime();
-	pthread_mutex_lock(th->death_lock);
 	th->death_time = th->start_time;
-	pthread_mutex_unlock(th->death_lock);
-	if (th->nump == 3)
+	if ((th->dt.nump % 2 != 0 && th->nump == th->dt.nump) && th->nump != 1)
 		write_status(th, "is thinking");
 	if (th->nump % 2 == 0)
 		if (!sleep_think(th))
@@ -55,46 +53,39 @@ void	*routine(void *arg)
 		// if (th->dt.num_pme && !*(th->death))
 		// 	if (th->pme == th->dt.num_pme)
 		// 		return (NULL);
+		if (!other_death(th))
+			return (NULL);
 	}
 	return (NULL);
 }
 
-void	monitor(t_data data, t_thread *th, int i, int pme)
+//if one is waiting for the fork (odd number) it seems the time of death is not reported accurately 
+int	monitor(t_data data, t_thread *th, int i, int pme)
 {
-	// long long int start_timer;
 	while (i < data.nump)
 	{
 		pthread_mutex_lock(th[i].death_lock);
-		// start_timer = getcurrenttime() - th[0].death_time;
-		// if (th[i].nump == 1 && ((getcurrenttime() - th[0].death_time) == start_timer + 1 || getcurrenttime() - th[0].death_time < start_timer))
-		// {
-		// 	printf ("thread 1 death time is %lld in mls\n", getcurrenttime() - th[i].death_time);
-		// 	start_timer = getcurrenttime() - th[0].death_time;
-		// }
-		if (!*th[i].death && (data.num_pme && pme != data.nump))
+		if (((getcurrenttime() - th[i].death_time) >= data.time_td) && \
+		(!th[i].eating && !th[i].exit && !*th[i].death))
 		{
-			if ((getcurrenttime() - th[i].death_time) >= data.time_td && !th[i].eating)
-				write_death(th, "died");
-			if ((getcurrenttime() - th[i].death_time) >= data.time_td && !th[i].eating)
-				*th[i].death = 1;
-			if (data.num_pme && th[i].pme == data.num_pme && !th[i].exit)
-			{
-				th[i].exit = 1;
-				pme++;
-			}
+			write_death(&th[i], "died");
+			*th[i].death =  1;
+			return (pthread_mutex_unlock(th[i].death_lock) ,0);
 		}
-		else
+		else if (data.num_pme && th[i].pme == data.num_pme)
 		{
-			pthread_mutex_unlock(th[i].death_lock);
-			break ;
+			th[i].exit = 1;
+			pme++;
+			if (pme == data.num_pme)
+				return (pthread_mutex_unlock(th[i].death_lock), 1);
 		}
 		pthread_mutex_unlock(th[i].death_lock);
 		i++;
 		if (i == data.nump)
 			i = 0;
 	}
+	return (2);
 }
-
 
 /*
 *	the main is mostly there for higher scope forks and parsing

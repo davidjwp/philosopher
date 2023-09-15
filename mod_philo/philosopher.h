@@ -46,7 +46,7 @@ typedef struct _thread_struct{
 }				t_thread;
 
 //new
-void	monitor(t_data dt, t_thread *th, int i, int pme);
+int		monitor(t_data dt, t_thread *th, int i, int pme);
 int		other_death(t_thread *th);
 void	write_death(t_thread *th, char *death);
 

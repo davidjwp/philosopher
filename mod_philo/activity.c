@@ -12,49 +12,40 @@
 
 #include "philosopher.h"
 
-// this checks wether or not the philosophers are dead or have eaten enough
-// int	check_death(t_thread *th)
-// {
-// 	pthread_mutex_lock(th->death_lock);
-// 	if ((getcurrenttime() - th->death_time) >= th->dt.time_td)
-// 	{
-// 		if (!*(th->death))
-// 		{
-// 			if ((getcurrenttime() - th->death_time) >= th->dt.time_td)
-// 				write_status(th, "died");
-// 			*(th->death) = 1;
-// 		}
-// 		return (pthread_mutex_unlock(th->death_lock), 0);
-// 	}
-// 	else if (th->dt.num_pme && th->pme == th->dt.num_pme)
-// 		return (pthread_mutex_unlock(th->death_lock), th->exit = 1, 0);
-// 	else if (*(th->death))
-// 		return (pthread_mutex_unlock(th->death_lock), 0);
-// 	return (pthread_mutex_unlock(th->death_lock), 1);
-// }
-
 int	other_death(t_thread *th)
 {
 	pthread_mutex_lock(th->death_lock);
-	// printf ("\nphilo %d is checking death state of %d and exit state of %d\n", th->nump, *th->death, th->exit);
 	if (*th->death || th->exit)
 		return (pthread_mutex_unlock(th->death_lock), 0);
 	pthread_mutex_unlock(th->death_lock);
 	return (1);
 }
 
-
 int	ft_sleep(t_thread *th, int time_to_sleep)
 {
-	time_to_sleep *= 10;
-	while (time_to_sleep--)
+	long long int	start_time;
+	start_time = getcurrenttime();
+	while ((getcurrenttime() - start_time) < time_to_sleep)
 	{
 		if (!other_death(th))
 			return (0);
-		usleep(10);
+		usleep(time_to_sleep / 10);
 	}
 	return (1);
 }
+
+// int	ft_usleep(t_thread *th, long long int time)
+// {
+// 	long long int	start;
+// 	start = getcurrenttime();
+// 	while ((getcurrenttime() - start) < time)
+// 	{
+// 		if (!other_death(th))
+// 			return (0);
+// 		usleep(time / 10);
+// 	}
+// 	return(1);
+// }
 
 // void	myusleep(int time_to_sleep)
 // {
@@ -94,7 +85,7 @@ void	dropping_forks(t_thread *th)
 	{
 		pthread_mutex_unlock(th->l_fork);
  		pthread_mutex_unlock(th->r_fork);
-		pthread_mutex_lock(th->death_lock);
+ 		pthread_mutex_lock(th->death_lock);
 		th->pme++;
 		pthread_mutex_unlock(th->death_lock);
 	}
@@ -107,16 +98,15 @@ int	eating(t_thread *th)
 	{
 		if (!th->fotak++)
 			write_status(th, "has taken a fork");
-		if (!other_death(th))
-			return (0);		
 		return (1);
 	}
 	picking_forks(th);
-	if (!write_status(th, "is eating"))
-		return (dropping_forks(th), 0);
+	write_status(th, "is eating");
 	pthread_mutex_lock(th->death_lock);
 	th->eating = 1;
+	pthread_mutex_unlock(th->death_lock);
 	usleep(th->dt.time_te * 1000);
+	pthread_mutex_lock(th->death_lock);
 	th->death_time = getcurrenttime();
 	th->eating = 0;
 	pthread_mutex_unlock(th->death_lock);
@@ -152,9 +142,10 @@ int	sleep_think(t_thread *th)
 {
 	if (!write_status(th, "is sleeping"))
 		return (0);
-	if (!ft_sleep(th, th->dt.time_ts))
+	if(!ft_sleep(th, th->dt.time_ts))
 		return (0);
-	write_status(th, "is thinking");
+	if (!write_status(th, "is thinking"))
+		return (0);
 	return (1);
 }
 
