@@ -39,22 +39,57 @@ void	*routine(void *arg)
 	t_thread	*th;
 
 	th = (t_thread *)arg;
-	th->start_time = getcurrenttime();
-	th->death_time = th->start_time;
+	if (th->r_fork == NULL)
+	{
+		write_status(th, "has taken a fork");
+		return (ft_sleep(th, th->dt.time_td + 1), NULL);
+	}
+	if ((th->dt.nump % 2 != 0 && th->nump == th->dt.nump) && th->nump != 1)
+		write_status(th, "is thinking");
 	if (th->nump % 2 == 0)
 		if (!sleep_think(th))
 			return (NULL);
-	while (!th->exit)
+	while (42)
 	{
 		if (!eating(th))
 			return (NULL);
-		if (th->dt.num_pme && !*(th->death))
-			if (th->pme == th->dt.num_pme)
-				return (NULL);
-		if (!check_death(th))
+		if (!other_death(th))
 			return (NULL);
 	}
 	return (NULL);
+}
+
+/*
+* the monitoring function serves to continualy check for the time to death
+* in every thread and when all threads have eaten enough if the argument is 
+* added, when one of each is true, the simulation stops.
+*/
+int	monitor(t_data data, t_thread *th, int i, int pme)
+{
+	while (i < data.nump)
+	{
+		pthread_mutex_lock(th[i].d_lock);
+		if (((getcurrenttime() - th[i].death_time) >= data.time_td) && \
+		(!th[i].exit && !*th[i].death))
+		{
+			write_death(&th[i], "died");
+			*th[i].death = 1;
+			return (pthread_mutex_unlock(th[i].d_lock), 0);
+		}
+		else if (data.num_pme && th[i].pme == data.num_pme && !th[i].exit)
+		{
+			pme++;
+			th[i].exit = 1;
+		}
+		if (pme == data.nump)
+			return (*th[i].death = 1, pthread_mutex_unlock(th[i].d_lock), 1);
+		pthread_mutex_unlock(th[i].d_lock);
+		i++;
+		if (i == data.nump)
+			i = 0;
+		slow_monitor(data);
+	}
+	return (2);
 }
 
 /*
@@ -62,7 +97,7 @@ void	*routine(void *arg)
 */
 int	main(int argc, char **argv)
 {
-	pthread_mutex_t	death_lock;
+	pthread_mutex_t	d_lock;
 	pthread_mutex_t	*forks;
 	t_thread		*threads;
 	t_data			data;
@@ -76,7 +111,7 @@ int	main(int argc, char **argv)
 	threads = malloc(sizeof(t_thread) * data.nump);
 	if (threads == NULL)
 		return (err_msg("threads malloc fail"), free(forks), 1);
-	if (!init(data, forks, death_lock, threads))
+	if (!init(data, forks, d_lock, threads))
 		return (0);
 	return (1);
 }

@@ -37,12 +37,19 @@ typedef struct _thread_struct{
 	int				pme;
 	pthread_mutex_t	*print_lock;
 	pthread_mutex_t	*fork_lock;
-	pthread_mutex_t	*death_lock;
+	pthread_mutex_t	*d_lock;
 	pthread_t		t_id;
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	*r_fork;
 	t_data			dt;
 }				t_thread;
+
+//new
+void		slow_monitor(t_data data);
+int			monitor(t_data dt, t_thread *th, int i, int pme);
+int			other_death(t_thread *th);
+void		write_death(t_thread *th, char *death);
+int			ft_sleep(t_thread *th, int time_to_sleep);
 
 //parse
 int			check_argv(int argc, char **argv, t_data *d);
@@ -52,7 +59,7 @@ int			init(t_data q, pthread_mutex_t *f, pthread_mutex_t d, t_thread *t);
 int			mutex_init(t_data data, t_thread *th, pthread_mutex_t *f);
 
 //utils
-void		write_status(t_thread *th, char *status);
+int			write_status(t_thread *th, char *status);
 int			ft_strlen(char *s);
 void		clean_forks(t_thread *threads, int i);
 void		destroy_forks(pthread_mutex_t *mforks, pthread_mutex_t dl, int num);

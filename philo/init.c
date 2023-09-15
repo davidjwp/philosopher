@@ -12,6 +12,23 @@
 
 #include "philosopher.h"
 
+void	slow_monitor(t_data data)
+{
+	if (data.nump > 100)
+		usleep(1000);
+	else
+		usleep(3000);
+}
+
+int	other_death(t_thread *th)
+{
+	pthread_mutex_lock(th->d_lock);
+	if (*th->death)
+		return (pthread_mutex_unlock(th->d_lock), 0);
+	pthread_mutex_unlock(th->d_lock);
+	return (1);
+}
+
 /*
 * this function is only just in case of failure to initialize the forks mutex
 * it'll destroy all the previous mutexes that were previously initialized
@@ -42,12 +59,14 @@ int	mutex_init(t_data data, t_thread *threads, pthread_mutex_t *forks)
 		threads[i].pme = 0;
 		threads[i].dt = data;
 		threads[i].r_fork = NULL;
-		pthread_mutex_init(&forks[i++], NULL);
+		if (pthread_mutex_init(&forks[i++], NULL) != 0)
+			return (clean_mutex(forks, i), err_msg("forks mutex init"), 0);
 	}
 	i = 0;
 	threads[0].l_fork = &forks[0];
-	threads[0].r_fork = &forks[data.nump - 1];
-	while (i++ < data.nump - 1)
+	if (data.nump > 1)
+		threads[0].r_fork = &forks[data.nump - 1];
+	while (i++ < data.nump - 1 && data.nump > 1)
 	{
 		threads[i].l_fork = &forks[i];
 		if (data.nump > 1)
@@ -68,19 +87,23 @@ int	init(t_data dt, pthread_mutex_t *f, pthread_mutex_t dl, t_thread *th)
 
 	i = 0;
 	death = 0;
-	pthread_mutex_init(&print_lock, NULL);
 	if (!mutex_init(dt, th, f))
-		return (0);
+		return (free(th), free(f), 0);
+	pthread_mutex_init(&print_lock, NULL);
 	pthread_mutex_init(&dl, NULL);
 	while (i < dt.nump)
 	{
 		th[i].print_lock = &print_lock;
 		th[i].death = &death;
-		th[i].death_lock = &dl;
+		th[i].d_lock = &dl;
+		th[i].start_time = getcurrenttime();
+		th[i].death_time = th->start_time;
 		pthread_create(&th[i].t_id, NULL, routine, (void *)&th[i]);
 		usleep(10);
 		i++;
 	}
+	usleep(1000);
+	monitor(dt, th, 0, 0);
 	join_threads(th, dt);
 	return (destroy_forks(f, dl, dt.nump), free(th), free(f), 2);
 }
