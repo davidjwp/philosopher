@@ -46,10 +46,9 @@ typedef struct _thread_struct{
 }				t_thread;
 
 //new
-int		monitor(t_data dt, t_thread *th, int i, int pme);
-int		other_death(t_thread *th);
-void	write_death(t_thread *th, char *death);
-
+int			monitor(t_data dt, t_thread *th, int i, int pme);
+int			other_death(t_thread *th);
+void		write_death(t_thread *th, char *death);
 
 //parse
 int			check_argv(int argc, char **argv, t_data *d);
@@ -59,7 +58,7 @@ int			init(t_data q, pthread_mutex_t *f, pthread_mutex_t d, t_thread *t);
 int			mutex_init(t_data data, t_thread *th, pthread_mutex_t *f);
 
 //utils
-int		write_status(t_thread *th, char *status);
+int			write_status(t_thread *th, char *status);
 int			ft_strlen(char *s);
 void		clean_forks(t_thread *threads, int i);
 void		destroy_forks(pthread_mutex_t *mforks, pthread_mutex_t dl, int num);

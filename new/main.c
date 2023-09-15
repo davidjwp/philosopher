@@ -39,46 +39,47 @@ void	*routine(void *arg)
 	t_thread	*th;
 
 	th = (t_thread *)arg;
-	th->start_time = getcurrenttime();
-	th->death_time = th->start_time;
+	// th->start_time = getcurrenttime();
+	// th->death_time = th->start_time;
 	if ((th->dt.nump % 2 != 0 && th->nump == th->dt.nump) && th->nump != 1)
 		write_status(th, "is thinking");
 	if (th->nump % 2 == 0)
 		if (!sleep_think(th))
 			return (NULL);
-	while (!th->exit)
+	while (42)
 	{
 		if (!eating(th))
 			return (NULL);
-		// if (th->dt.num_pme && !*(th->death))
-		// 	if (th->pme == th->dt.num_pme)
-		// 		return (NULL);
 		if (!other_death(th))
 			return (NULL);
 	}
 	return (NULL);
 }
 
-//if one is waiting for the fork (odd number) it seems the time of death is not reported accurately 
+/*
+* the monitoring function serves to continualy check for the time to death
+* in every thread and when all threads have eaten enough if the argument is 
+* added, when one of each is true, the simulation stops.
+*/
 int	monitor(t_data data, t_thread *th, int i, int pme)
 {
 	while (i < data.nump)
 	{
 		pthread_mutex_lock(th[i].death_lock);
 		if (((getcurrenttime() - th[i].death_time) >= data.time_td) && \
-		(!th[i].eating && !th[i].exit && !*th[i].death))
+		(!th[i].exit && !*th[i].death))
 		{
 			write_death(&th[i], "died");
-			*th[i].death =  1;
-			return (pthread_mutex_unlock(th[i].death_lock) ,0);
+			*th[i].death = 1;
+			return (pthread_mutex_unlock(th[i].death_lock), 0);
 		}
-		else if (data.num_pme && th[i].pme == data.num_pme)
+		else if (data.num_pme && th[i].pme == data.num_pme && !th[i].exit)
 		{
-			th[i].exit = 1;
 			pme++;
-			if (pme == data.num_pme)
-				return (pthread_mutex_unlock(th[i].death_lock), 1);
+			th[i].exit = 1;
 		}
+		if (pme == data.nump)
+			return (*th[i].death = 1, pthread_mutex_unlock(th[i].death_lock), 1);
 		pthread_mutex_unlock(th[i].death_lock);
 		i++;
 		if (i == data.nump)

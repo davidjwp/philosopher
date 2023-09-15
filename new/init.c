@@ -80,10 +80,13 @@ int	init(t_data dt, pthread_mutex_t *f, pthread_mutex_t dl, t_thread *th)
 		th[i].print_lock = &print_lock;
 		th[i].death = &death;
 		th[i].death_lock = &dl;
+		th[i].start_time = getcurrenttime();
+		th[i].death_time = th->start_time;
 		pthread_create(&th[i].t_id, NULL, routine, (void *)&th[i]);
 		usleep(10);
 		i++;
 	}
+	usleep(1000);
 	monitor(dt, th, 0, 0);
 	join_threads(th, dt);
 	return (destroy_forks(f, dl, dt.nump), free(th), free(f), 2);
